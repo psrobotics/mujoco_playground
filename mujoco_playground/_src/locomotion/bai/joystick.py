@@ -220,6 +220,7 @@ class Joystick(bai_base.BaiEnv):
   #   return state
 
   def step(self, state: mjx_env.State, action: jax.Array) -> mjx_env.State:
+
     if self._config.pert_config.enable:
       state = self._maybe_apply_perturbation(state)
     # state = self._reset_if_outside_bounds(state)
@@ -460,7 +461,7 @@ class Joystick(bai_base.BaiEnv):
 
   def _reward_pose(self, qpos: jax.Array) -> jax.Array:
     # Stay close to the default pose.
-    weight = jp.array([1.0, 1.0, 0.1] * 4)
+    weight = jp.array([1.0, 1.0, 0.1] * 2)  #4->2 2 legs
     return jp.exp(-jp.sum(jp.square(qpos - self._default_pose) * weight))
 
   def _cost_stand_still(

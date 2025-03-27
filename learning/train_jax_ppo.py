@@ -66,7 +66,7 @@ warnings.filterwarnings("ignore", category=UserWarning, module="absl")
 
 _ENV_NAME = flags.DEFINE_string(
     "env_name",
-    "LeapCubeReorient",
+    "BaiJoystickFlatTerrain",
     f"Name of the environment. One of {', '.join(registry.ALL_ENVS)}",
 )
 _VISION = flags.DEFINE_boolean("vision", False, "Use vision input")
