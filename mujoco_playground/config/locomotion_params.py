@@ -142,8 +142,10 @@ def brax_ppo_config(env_name: str) -> config_dict.ConfigDict:
       "SpotFlatTerrainJoystick",
       "SpotGetup",
       "SpotJoystickGaitTracking",
+      "BaiJoystickFlatTerrain",
   ):
     pass  # use default config
+    print("Using Default Env Setup")
   else:
     raise ValueError(f"Unsupported env: {env_name}")
 

@@ -190,9 +190,9 @@ class Joystick(bai_base.BaiEnv):
         "steps_until_next_cmd": steps_until_next_cmd,
         "last_act": jp.zeros(self.mjx_model.nu),
         "last_last_act": jp.zeros(self.mjx_model.nu),
-        "feet_air_time": jp.zeros(4),
-        "last_contact": jp.zeros(4, dtype=bool),
-        "swing_peak": jp.zeros(4),
+        "feet_air_time": jp.zeros(2), # 2 legs, 4->2
+        "last_contact": jp.zeros(2, dtype=bool),
+        "swing_peak": jp.zeros(2),
         "steps_until_next_pert": steps_until_next_pert,
         "pert_duration_seconds": pert_duration_seconds,
         "pert_duration": pert_duration_steps,
@@ -332,9 +332,9 @@ class Joystick(bai_base.BaiEnv):
         noisy_linvel,  # 3
         noisy_gyro,  # 3
         noisy_gravity,  # 3
-        noisy_joint_angles - self._default_pose,  # 12
-        noisy_joint_vel,  # 12
-        info["last_act"],  # 12
+        noisy_joint_angles - self._default_pose,  # 6
+        noisy_joint_vel,  # 6
+        info["last_act"],  # 6
         info["command"],  # 3
     ])
 

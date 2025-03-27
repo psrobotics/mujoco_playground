@@ -23,11 +23,11 @@
 
   <worldbody>
     <!-- Define the floating base as a body with a free joint -->
-    <body name="base_link" pos="0 0 0.32">
+    <body name="base_link" pos="0 0.0 0.32">
       <joint name="base_free" type="free"/>
 
       <!-- IMU site -->
-      <site name="imu_torso" pos="0 0 0" size="0.01"/>
+      <site name="imu_torso" pos="0 0.0 0.0" size="0.01"/>
 
       <!-- Base geoms -->
       <geom name="base_link_collision" type="mesh"
@@ -105,7 +105,9 @@
 
             <!-- Example left foot geom or site (rename if needed) -->
             <!-- If this is your foot contact geom, just ensure it's named "left_foot" -->
-            <site name="left_foot" pos="0 0 -0.213" type="sphere" size="0.023" group="5"/>
+            <geom name = "left_foot" pos="-0.15 -0.02 0" type="sphere" size="0.02" contype="1" conaffinity="1"/>
+            <site name="left_foot" pos="-0.15 -0.02 0" size="0.01"/>
+
           </body>
         </body>
       </body>
@@ -176,8 +178,10 @@
                   contype="0" conaffinity="0"/>
 
             <!-- Example right foot geom or site (rename if needed) -->
+            <geom name = "right_foot" pos="-0.15 0.02 0" type="sphere" size="0.02" contype="1" conaffinity="1"/>
+            <site name="right_foot" pos="-0.15 0.02 0" size="0.01"/>
 
-            <site name="right_foot" pos="0 0 -0.213" type="sphere" size="0.023" group="5"/>
+
           </body>
         </body>
       </body>
