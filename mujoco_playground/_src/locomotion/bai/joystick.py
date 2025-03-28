@@ -36,11 +36,12 @@ def default_config() -> config_dict.ConfigDict:
               linvel=0.1,
           ),
       ),
+      # reward confg #############################################
       reward_config=config_dict.create(
           scales=config_dict.create(
               # Tracking.
               tracking_lin_vel=1.0,
-              tracking_ang_vel=0.5,
+              tracking_ang_vel=1.5,
               # Base reward.
               lin_vel_z=-0.5,
               ang_vel_xy=-0.05,
@@ -66,17 +67,18 @@ def default_config() -> config_dict.ConfigDict:
       ),
       pert_config=config_dict.create(
           enable=False,
-          velocity_kick=[0.0, 0.5],
+          velocity_kick=[0.0, 0.0],
           kick_durations=[0.05, 0.2],
           kick_wait_times=[1.0, 3.0],
       ),
       command_config=config_dict.create(
           # Uniform distribution for command amplitude.
-          a=[1.5, 0.8, 1.2],
+          a=[0.5, 0.3, 0.5],
           # Probability of not zeroing out new command.
           b=[0.9, 0.25, 0.5],
       ),
   )
+
 
 
 class Joystick(bai_base.BaiEnv):
@@ -94,6 +96,7 @@ class Joystick(bai_base.BaiEnv):
         config_overrides=config_overrides,
     )
     self._post_init()
+
 
   def _post_init(self) -> None:
     # need modifiy this in mjx scene file, also joint limits
@@ -116,6 +119,7 @@ class Joystick(bai_base.BaiEnv):
         [self._mj_model.geom(name).id for name in consts.FEET_GEOMS]
     )
 
+
     foot_linvel_sensor_adr = []
     for site in consts.FEET_SITES:
       # modify, foot position
@@ -127,8 +131,10 @@ class Joystick(bai_base.BaiEnv):
       )
     self._foot_linvel_sensor_adr = jp.array(foot_linvel_sensor_adr)
 
+
     self._cmd_a = jp.array(self._config.command_config.a)
     self._cmd_b = jp.array(self._config.command_config.b)
+
 
   def reset(self, rng: jax.Array) -> mjx_env.State:
     qpos = self._init_q
@@ -144,12 +150,12 @@ class Joystick(bai_base.BaiEnv):
     new_quat = math.quat_mul(qpos[3:7], quat)
     qpos = qpos.at[3:7].set(new_quat)
 
-    # d(xyzrpy)=U(-0.5, 0.5)
+    # d(xyzrpy)=U(-0.1, 0.1)
     rng, key = jax.random.split(rng)
     qvel = qvel.at[0:6].set(
-        jax.random.uniform(key, (6,), minval=-0.5, maxval=0.5)
+        jax.random.uniform(key, (6,), minval=-0.1, maxval=0.1)
     )
-
+    # kept original z height
     data = mjx_env.init(self.mjx_model, qpos=qpos, qvel=qvel, ctrl=qpos[7:])
 
     rng, key1, key2, key3 = jax.random.split(rng, 4)
@@ -281,6 +287,7 @@ class Joystick(bai_base.BaiEnv):
     fall_termination = self.get_upvector(data)[-1] < 0.0
     return fall_termination
 
+  ##############################################################################
   def _get_obs(
       self, data: mjx.Data, info: dict[str, Any]
   ) -> Dict[str, jax.Array]:
@@ -344,7 +351,7 @@ class Joystick(bai_base.BaiEnv):
     feet_vel = data.sensordata[self._foot_linvel_sensor_adr].ravel()
 
     privileged_state = jp.hstack([
-        state,
+        state, # 30
         gyro,  # 3
         accelerometer,  # 3
         gravity,  # 3
@@ -365,6 +372,8 @@ class Joystick(bai_base.BaiEnv):
         "privileged_state": privileged_state,
     }
 
+
+  ##############################################################################
   def _get_reward(
       self,
       data: mjx.Data,
