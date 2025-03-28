@@ -67,7 +67,7 @@ def default_config() -> config_dict.ConfigDict:
       ),
       pert_config=config_dict.create(
           enable=False,
-          velocity_kick=[0.0, 0.0],
+          velocity_kick=[0.08, 0.08],
           kick_durations=[0.05, 0.2],
           kick_wait_times=[1.0, 3.0],
       ),
