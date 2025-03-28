@@ -43,20 +43,20 @@ def default_config() -> config_dict.ConfigDict:
               tracking_lin_vel=1.0,
               tracking_ang_vel=0.5,
               # Base reward.
-              lin_vel_z=-0.5,
+              lin_vel_z=-1.0,
               ang_vel_xy=-0.05,
-              orientation=-5.0,
+              orientation=-3.0,
               z_height=5.0,
               # Other.
               dof_pos_limits=-1.0,
-              pose=0.5,
+              pose=3.0,
               # Other.
-              termination=-1.0,
-              stand_still=-1.0,
+              termination=-5.0,
+              stand_still=-5.0,
               # Regularization.
-              torques=-0.0002,
+              torques=-0.02,
               action_rate=-0.01,
-              energy=-0.001,
+              energy=-0.01,
               # Feet.
               feet_clearance=-0.0,
               feet_height=-0.2,
@@ -479,7 +479,7 @@ class Joystick(bai_base.BaiEnv):
 
   def _reward_pose(self, qpos: jax.Array) -> jax.Array:
     # Stay close to the default pose.
-    weight = jp.array([1.0, 1.0, 0.1] * 2)  #4->2 2 legs
+    weight = jp.array([1.0, 1.0, 1.0] * 2)  #4->2 2 legs
     return jp.exp(-jp.sum(jp.square(qpos - self._default_pose) * weight))
 
   def _cost_stand_still(
