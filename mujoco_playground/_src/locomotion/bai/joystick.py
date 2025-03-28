@@ -142,7 +142,7 @@ class Joystick(bai_base.BaiEnv):
 
     # x=+U(-0.5, 0.5), y=+U(-0.5, 0.5), yaw=U(-3.14, 3.14).
     rng, key = jax.random.split(rng)
-    dxy = jax.random.uniform(key, (2,), minval=-0.5, maxval=0.5)
+    dxy = jax.random.uniform(key, (2,), minval=-0.005, maxval=0.005)
     qpos = qpos.at[0:2].set(qpos[0:2] + dxy)
     rng, key = jax.random.split(rng)
     yaw = jax.random.uniform(key, (1,), minval=-3.14, maxval=3.14)
@@ -153,7 +153,7 @@ class Joystick(bai_base.BaiEnv):
     # d(xyzrpy)=U(-0.1, 0.1)
     rng, key = jax.random.split(rng)
     qvel = qvel.at[0:6].set(
-        jax.random.uniform(key, (6,), minval=-0.1, maxval=0.1)
+        jax.random.uniform(key, (6,), minval=-0.001, maxval=0.001)
     )
     # kept original z height
     data = mjx_env.init(self.mjx_model, qpos=qpos, qvel=qvel, ctrl=qpos[7:])
