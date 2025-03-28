@@ -58,10 +58,10 @@ def default_config() -> config_dict.ConfigDict:
               action_rate=-0.01,
               energy=-0.001,
               # Feet.
-              feet_clearance=-2.0,
+              feet_clearance=-0.0,
               feet_height=-0.2,
               feet_slip=-0.1,
-              feet_air_time=0.1,
+              feet_air_time=0.0,
           ),
           tracking_sigma=0.25,
           max_foot_height=0.1,
