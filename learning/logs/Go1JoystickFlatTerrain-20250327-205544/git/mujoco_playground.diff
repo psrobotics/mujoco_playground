@@ -1,0 +1,30 @@
+--- git status ---
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   learning/train_rsl_rl.py
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	learning/logs/
+
+no changes added to commit (use "git add" and/or "git commit -a") 
+
+
+--- git diff ---
+diff --git a/learning/train_rsl_rl.py b/learning/train_rsl_rl.py
+index e6b5489..618545a 100644
+--- a/learning/train_rsl_rl.py
++++ b/learning/train_rsl_rl.py
+@@ -48,7 +48,7 @@ logging.set_verbosity(logging.WARNING)
+ # Define flags similar to the JAX script
+ _ENV_NAME = flags.DEFINE_string(
+     "env_name",
+-    "BaiJoystickFlatTerrain",
++    "Go1JoystickFlatTerrain",
+     (
+         "Name of the environment. One of: "
+         f"{', '.join(mujoco_playground.registry.ALL_ENVS)}"

@@ -42,6 +42,11 @@ from mujoco_playground import wrapper_torch
 from mujoco_playground.config import locomotion_params
 from mujoco_playground.config import manipulation_params
 
+
+import os
+os.environ["JAX_TRACEBACK_FILTERING"] = "off"
+
+
 # Suppress logs if you want
 logging.set_verbosity(logging.WARNING)
 
@@ -151,17 +156,18 @@ def main(argv):
   def render_callback(_, state):
     render_trajectory.append(state)
 
+
   # Create the environment
   raw_env = registry.load(_ENV_NAME.value, config=env_cfg)
   brax_env = wrapper_torch.RSLRLBraxWrapper(
-      raw_env,
-      num_envs,
-      _SEED.value,
-      env_cfg.episode_length,
-      1,
-      render_callback=render_callback,
-      randomization_fn=randomizer,
-      device_rank=device_rank,
+        raw_env,
+        num_envs,
+        _SEED.value,
+        env_cfg.episode_length,
+        1,
+        render_callback=render_callback,
+        randomization_fn=randomizer,
+        device_rank=device_rank,
   )
 
   # Build RSL-RL config

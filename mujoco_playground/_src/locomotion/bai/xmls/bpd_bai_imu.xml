@@ -24,6 +24,11 @@
   <worldbody>
     <!-- Define the floating base as a body with a free joint -->
     <body name="base_link" pos="0 0.0 0.32">
+      <inertial pos="-0.02 0.05 0.13"
+                quat="0.999  -0.00012  0.00007  0.00054"
+                mass="3.6762535"
+                diaginertia="0.01195 0.01617 0.01837" />
+                
       <joint name="base_free" type="free"/>
 
       <!-- IMU site -->
@@ -52,7 +57,7 @@
               quat="0.5 0.5 0.5 -0.5"
               type="mesh"
               rgba="0.196078 0.196078 0.196078 1"
-              mesh="hip2hip_l_c"/>
+              mesh="hip2hip_l_c" contype="0" conaffinity="0"/>
         <geom name="hip2hip_l_visual" pos="-0.035 0.0135 -0.005"
               quat="0.5 0.5 0.5 -0.5"
               type="mesh"
@@ -73,7 +78,7 @@
                 quat="0.0308436 0.706434 -0.0308436 -0.706434"
                 type="mesh"
                 rgba="0.196078 0.196078 0.196078 1"
-                mesh="leg_u_l_c"/>
+                mesh="leg_u_l_c" contype="0" conaffinity="0"/>
           <geom name="leg_u_l_visual" pos="0.0255 3.77476e-10 -1.57538e-09"
                 quat="0.0308436 0.706434 -0.0308436 -0.706434"
                 type="mesh"
@@ -95,7 +100,7 @@
                   quat="0 -0.0436194 0.999048 0"
                   type="mesh"
                   rgba="0.8 0 0 1"
-                  mesh="leg_l_l_c"/>
+                  mesh="leg_l_l_c" contype="0" conaffinity="0"/>
             <geom name="leg_l_l_visual" pos="-0.0870524 -0.0180516 -0.00136393"
                   quat="0 -0.0436194 0.999048 0"
                   type="mesh"

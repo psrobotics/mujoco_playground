@@ -217,14 +217,6 @@ class Joystick(bai_base.BaiEnv):
     reward, done = jp.zeros(2)
     return mjx_env.State(data, obs, reward, done, metrics, info)
 
-  # def _reset_if_outside_bounds(self, state: mjx_env.State) -> mjx_env.State:
-  #   qpos = state.data.qpos
-  #   new_x = jp.where(jp.abs(qpos[0]) > 9.5, 0.0, qpos[0])
-  #   new_y = jp.where(jp.abs(qpos[1]) > 9.5, 0.0, qpos[1])
-  #   qpos = qpos.at[0:2].set(jp.array([new_x, new_y]))
-  #   state = state.replace(data=state.data.replace(qpos=qpos))
-  #   return state
-
   def step(self, state: mjx_env.State, action: jax.Array) -> mjx_env.State:
 
     if self._config.pert_config.enable:
@@ -256,7 +248,7 @@ class Joystick(bai_base.BaiEnv):
     rewards = {
         k: v * self._config.reward_config.scales[k] for k, v in rewards.items()
     }
-    reward = jp.clip(sum(rewards.values()) * self.dt, 0.0, 10000.0)
+    reward = jp.clip(sum(rewards.values()) * self.dt, 0.0, 5000.0)
 
     state.info["last_last_act"] = state.info["last_act"]
     state.info["last_act"] = action
@@ -291,50 +283,57 @@ class Joystick(bai_base.BaiEnv):
   def _get_obs(
       self, data: mjx.Data, info: dict[str, Any]
   ) -> Dict[str, jax.Array]:
+    
+
     gyro = self.get_gyro(data)
-    info["rng"], noise_rng = jax.random.split(info["rng"])
-    noisy_gyro = (
-        gyro
-        + (2 * jax.random.uniform(noise_rng, shape=gyro.shape) - 1)
-        * self._config.noise_config.level
-        * self._config.noise_config.scales.gyro
-    )
+    noisy_gyro = gyro
+    # info["rng"], noise_rng = jax.random.split(info["rng"])
+    # noisy_gyro = (
+    #     gyro
+    #     + (2 * jax.random.uniform(noise_rng, shape=gyro.shape) - 1)
+    #     * self._config.noise_config.level
+    #     * self._config.noise_config.scales.gyro
+    # )
 
     gravity = self.get_gravity(data)
-    info["rng"], noise_rng = jax.random.split(info["rng"])
-    noisy_gravity = (
-        gravity
-        + (2 * jax.random.uniform(noise_rng, shape=gravity.shape) - 1)
-        * self._config.noise_config.level
-        * self._config.noise_config.scales.gravity
-    )
+    noisy_gravity = gravity
+    # info["rng"], noise_rng = jax.random.split(info["rng"])
+    # noisy_gravity = (
+    #     gravity
+    #     + (2 * jax.random.uniform(noise_rng, shape=gravity.shape) - 1)
+    #     * self._config.noise_config.level
+    #     * self._config.noise_config.scales.gravity
+    # )
 
     joint_angles = data.qpos[7:]
-    info["rng"], noise_rng = jax.random.split(info["rng"])
-    noisy_joint_angles = (
-        joint_angles
-        + (2 * jax.random.uniform(noise_rng, shape=joint_angles.shape) - 1)
-        * self._config.noise_config.level
-        * self._config.noise_config.scales.joint_pos
-    )
+    noisy_joint_angles = joint_angles
+    # info["rng"], noise_rng = jax.random.split(info["rng"])
+    # noisy_joint_angles = (
+    #     joint_angles
+    #     + (2 * jax.random.uniform(noise_rng, shape=joint_angles.shape) - 1)
+    #     * self._config.noise_config.level
+    #     * self._config.noise_config.scales.joint_pos
+    # )
 
     joint_vel = data.qvel[6:]
-    info["rng"], noise_rng = jax.random.split(info["rng"])
-    noisy_joint_vel = (
-        joint_vel
-        + (2 * jax.random.uniform(noise_rng, shape=joint_vel.shape) - 1)
-        * self._config.noise_config.level
-        * self._config.noise_config.scales.joint_vel
-    )
+    noisy_joint_vel = joint_vel
+    # info["rng"], noise_rng = jax.random.split(info["rng"])
+    # noisy_joint_vel = (
+    #     joint_vel
+    #     + (2 * jax.random.uniform(noise_rng, shape=joint_vel.shape) - 1)
+    #     * self._config.noise_config.level
+    #     * self._config.noise_config.scales.joint_vel
+    # )
 
     linvel = self.get_local_linvel(data)
-    info["rng"], noise_rng = jax.random.split(info["rng"])
-    noisy_linvel = (
-        linvel
-        + (2 * jax.random.uniform(noise_rng, shape=linvel.shape) - 1)
-        * self._config.noise_config.level
-        * self._config.noise_config.scales.linvel
-    )
+    noisy_linvel = linvel
+    # info["rng"], noise_rng = jax.random.split(info["rng"])
+    # noisy_linvel = (
+    #     linvel
+    #     + (2 * jax.random.uniform(noise_rng, shape=linvel.shape) - 1)
+    #     * self._config.noise_config.level
+    #     * self._config.noise_config.scales.linvel
+    # )
 
     state = jp.hstack([
         noisy_linvel,  # 3

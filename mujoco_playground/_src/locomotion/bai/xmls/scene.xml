@@ -1,5 +1,5 @@
 <mujoco model="bai feetonly flat terrain scene">
-  <include file="bpd_bai_imu.xml"/>
+  <include file="bpd_bai_vis.xml"/>
 
   <statistic center="0 0 0.1" extent="0.8" meansize="0.04"/>
 
