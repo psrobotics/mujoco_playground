@@ -419,7 +419,6 @@ class Joystick(bai_base.BaiEnv):
 
   def _reward_z_height(
       self,
-      commands: jax.Array,
       qpos: jax.Array,
   ) -> jax.Array:
     return jp.square(qpos[2] - 0.31)
