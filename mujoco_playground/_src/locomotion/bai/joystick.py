@@ -46,19 +46,20 @@ def default_config() -> config_dict.ConfigDict:
               lin_vel_z=-4.5,
               ang_vel_xy=-0.05,
               orientation=-5.0,
+              z_height=-5.0, 
               # Other.
               dof_pos_limits=-1.0,
-              pose=0.5,
+              pose=0.0,#0.5,
               # Other.
-              termination=-4.0,
-              stand_still=-1.0,
+              termination=-8.0,
+              stand_still=-3.0,
               # Regularization.
               torques=-0.0002,
               action_rate=-0.01,
               energy=-0.001,
               # Feet.
-              feet_clearance=-1.0,
-              feet_height=-0.2,
+              feet_clearance=0.0,#-1.0,
+              feet_height=0.0,#-0.2,
               feet_slip=-0.1,
               feet_air_time=0.1,
           ),
@@ -411,9 +412,17 @@ class Joystick(bai_base.BaiEnv):
             info["feet_air_time"], first_contact, info["command"]
         ),
         "dof_pos_limits": self._cost_joint_pos_limits(data.qpos[7:]),
+        "z_height": self._reward_z_height(data.qpos[7:]),
     }
 
   # Tracking rewards.
+
+  def _reward_z_height(
+      self,
+      commands: jax.Array,
+      qpos: jax.Array,
+  ) -> jax.Array:
+    return jp.square(qpos[2] - 0.31)
 
   def _reward_tracking_lin_vel(
       self,
