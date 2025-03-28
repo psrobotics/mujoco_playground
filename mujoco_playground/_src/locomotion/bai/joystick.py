@@ -140,24 +140,26 @@ class Joystick(bai_base.BaiEnv):
   def reset(self, rng: jax.Array) -> mjx_env.State:
     qpos = self._init_q
     qvel = jp.zeros(self.mjx_model.nv)
+    ctrl = jp.zeros(self.mjx_model.nu)
 
-    # x=+U(-0.5, 0.5), y=+U(-0.5, 0.5), yaw=U(-3.14, 3.14).
-    rng, key = jax.random.split(rng)
-    dxy = jax.random.uniform(key, (2,), minval=-0.005, maxval=0.005)
-    qpos = qpos.at[0:2].set(qpos[0:2] + dxy)
-    rng, key = jax.random.split(rng)
-    yaw = jax.random.uniform(key, (1,), minval=-3.14, maxval=3.14)
-    quat = math.axis_angle_to_quat(jp.array([0, 0, 1]), yaw)
-    new_quat = math.quat_mul(qpos[3:7], quat)
-    qpos = qpos.at[3:7].set(new_quat)
+    # # x=+U(-0.5, 0.5), y=+U(-0.5, 0.5), yaw=U(-3.14, 3.14).
+    # rng, key = jax.random.split(rng)
+    # dxy = jax.random.uniform(key, (2,), minval=-0.5, maxval=0.5)
+    # qpos = qpos.at[0:2].set(qpos[0:2] + dxy)
+    # rng, key = jax.random.split(rng)
+    # yaw = jax.random.uniform(key, (1,), minval=-3.14, maxval=3.14)
+    # quat = math.axis_angle_to_quat(jp.array([0, 0, 1]), yaw)
+    # new_quat = math.quat_mul(qpos[3:7], quat)
+    # qpos = qpos.at[3:7].set(new_quat)
 
-    # d(xyzrpy)=U(-0.1, 0.1)
-    rng, key = jax.random.split(rng)
-    qvel = qvel.at[0:6].set(
-        jax.random.uniform(key, (6,), minval=-0.001, maxval=0.001)
-    )
+    # # d(xyzrpy)=U(-0.1, 0.1)
+    # rng, key = jax.random.split(rng)
+    # qvel = qvel.at[0:6].set(
+    #     jax.random.uniform(key, (6,), minval=-0.1, maxval=0.1)
+    # )
+
     # kept original z height
-    data = mjx_env.init(self.mjx_model, qpos=qpos, qvel=qvel, ctrl=qpos[7:])
+    data = mjx_env.init(self.mjx_model, qpos=qpos, qvel=qvel, ctrl=ctrl)
 
     rng, key1, key2, key3 = jax.random.split(rng, 4)
     time_until_next_pert = jax.random.uniform(
