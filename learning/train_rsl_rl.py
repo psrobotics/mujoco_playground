@@ -48,7 +48,7 @@ logging.set_verbosity(logging.WARNING)
 # Define flags similar to the JAX script
 _ENV_NAME = flags.DEFINE_string(
     "env_name",
-    "BerkeleyHumanoidJoystickFlatTerrain",
+    "BaiJoystickFlatTerrain",
     (
         "Name of the environment. One of: "
         f"{', '.join(mujoco_playground.registry.ALL_ENVS)}"
