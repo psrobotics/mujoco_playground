@@ -41,18 +41,18 @@ def default_config() -> config_dict.ConfigDict:
           scales=config_dict.create(
               # Tracking.
               tracking_lin_vel=1.0,
-              tracking_ang_vel=1.5,
+              tracking_ang_vel=0.5,
               # Base reward.
-              lin_vel_z=-4.5,
-              ang_vel_xy=-0.05,
-              orientation=-5.0,
-              z_height=-5.0, 
+              lin_vel_z=0.0,
+              ang_vel_xy=0.0,
+              orientation=-50.0,
+              z_height=50.0, 
               # Other.
-              dof_pos_limits=-1.0,
+              dof_pos_limits=-0.1,
               pose=0.0,#0.5,
               # Other.
               termination=-8.0,
-              stand_still=-3.0,
+              stand_still=-0.0,
               # Regularization.
               torques=-0.0002,
               action_rate=-0.01,
@@ -138,9 +138,9 @@ class Joystick(bai_base.BaiEnv):
 
 
   def reset(self, rng: jax.Array) -> mjx_env.State:
-    qpos = self._init_q
-    qvel = jp.zeros(self.mjx_model.nv)
-    ctrl = jp.zeros(self.mjx_model.nu)
+    qpos_i = self._init_q
+    qvel_i = jp.zeros(self.mjx_model.nv)
+    ctrl_i = jp.zeros(self.mjx_model.nu)
 
     # # x=+U(-0.5, 0.5), y=+U(-0.5, 0.5), yaw=U(-3.14, 3.14).
     # rng, key = jax.random.split(rng)
@@ -158,8 +158,8 @@ class Joystick(bai_base.BaiEnv):
     #     jax.random.uniform(key, (6,), minval=-0.1, maxval=0.1)
     # )
 
-    # kept original z height
-    data = mjx_env.init(self.mjx_model, qpos=qpos, qvel=qvel, ctrl=ctrl)
+    # just copy in initial states from the xml file
+    data = mjx_env.init(self.mjx_model, qpos=qpos_i, qvel=qvel_i, ctrl=ctrl_i)
 
     rng, key1, key2, key3 = jax.random.split(rng, 4)
     time_until_next_pert = jax.random.uniform(
@@ -423,7 +423,7 @@ class Joystick(bai_base.BaiEnv):
       self,
       qpos: jax.Array,
   ) -> jax.Array:
-    return jp.square(qpos[2] - 0.31)
+    return jp.exp(-jp.square(qpos[2] - 0.31) * 20.0)
 
   def _reward_tracking_lin_vel(
       self,
@@ -454,7 +454,7 @@ class Joystick(bai_base.BaiEnv):
     return jp.sum(jp.square(global_angvel[:2]))
 
   def _cost_orientation(self, torso_zaxis: jax.Array) -> jax.Array:
-    # Penalize non flat base orientation.
+    # Penalize non flat base orientation. xy will have height sub-square
     return jp.sum(jp.square(torso_zaxis[:2]))
 
   # Energy related rewards.
