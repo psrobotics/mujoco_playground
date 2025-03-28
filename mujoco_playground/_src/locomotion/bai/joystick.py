@@ -412,7 +412,7 @@ class Joystick(bai_base.BaiEnv):
             info["feet_air_time"], first_contact, info["command"]
         ),
         "dof_pos_limits": self._cost_joint_pos_limits(data.qpos[7:]),
-        "z_height": self._reward_z_height(data.qpos[7:]),
+        "z_height": self._reward_z_height(data.qpos[0:3]),
     }
 
   # Tracking rewards.
