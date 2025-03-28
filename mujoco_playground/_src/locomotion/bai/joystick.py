@@ -43,28 +43,28 @@ def default_config() -> config_dict.ConfigDict:
               tracking_lin_vel=1.0,
               tracking_ang_vel=0.5,
               # Base reward.
-              lin_vel_z=0.0,
-              ang_vel_xy=0.0,
-              orientation=-50.0,
-              z_height=50.0, 
+              lin_vel_z=-0.5,
+              ang_vel_xy=-0.05,
+              orientation=-5.0,
+              z_height=5.0,
               # Other.
-              dof_pos_limits=-0.1,
-              pose=0.0,#0.5,
+              dof_pos_limits=-1.0,
+              pose=0.5,
               # Other.
-              termination=-8.0,
-              stand_still=-0.0,
+              termination=-1.0,
+              stand_still=-1.0,
               # Regularization.
               torques=-0.0002,
               action_rate=-0.01,
               energy=-0.001,
               # Feet.
-              feet_clearance=0.0,#-1.0,
-              feet_height=0.0,#-0.2,
+              feet_clearance=-2.0,
+              feet_height=-0.2,
               feet_slip=-0.1,
               feet_air_time=0.1,
           ),
           tracking_sigma=0.25,
-          max_foot_height=0.02,
+          max_foot_height=0.1,
       ),
       pert_config=config_dict.create(
           enable=False,
@@ -138,28 +138,28 @@ class Joystick(bai_base.BaiEnv):
 
 
   def reset(self, rng: jax.Array) -> mjx_env.State:
-    qpos_i = self._init_q
-    qvel_i = jp.zeros(self.mjx_model.nv)
+    qpos = self._init_q
+    qvel = jp.zeros(self.mjx_model.nv)
     ctrl_i = jp.zeros(self.mjx_model.nu)
 
-    # # x=+U(-0.5, 0.5), y=+U(-0.5, 0.5), yaw=U(-3.14, 3.14).
-    # rng, key = jax.random.split(rng)
-    # dxy = jax.random.uniform(key, (2,), minval=-0.5, maxval=0.5)
-    # qpos = qpos.at[0:2].set(qpos[0:2] + dxy)
-    # rng, key = jax.random.split(rng)
-    # yaw = jax.random.uniform(key, (1,), minval=-3.14, maxval=3.14)
-    # quat = math.axis_angle_to_quat(jp.array([0, 0, 1]), yaw)
-    # new_quat = math.quat_mul(qpos[3:7], quat)
-    # qpos = qpos.at[3:7].set(new_quat)
+    # x=+U(-0.5, 0.5), y=+U(-0.5, 0.5), yaw=U(-3.14, 3.14).
+    rng, key = jax.random.split(rng)
+    dxy = jax.random.uniform(key, (2,), minval=-0.5, maxval=0.5)
+    qpos = qpos.at[0:2].set(qpos[0:2] + dxy)
+    rng, key = jax.random.split(rng)
+    yaw = jax.random.uniform(key, (1,), minval=-3.14, maxval=3.14)
+    quat = math.axis_angle_to_quat(jp.array([0, 0, 1]), yaw)
+    new_quat = math.quat_mul(qpos[3:7], quat)
+    qpos = qpos.at[3:7].set(new_quat)
 
-    # # d(xyzrpy)=U(-0.1, 0.1)
-    # rng, key = jax.random.split(rng)
-    # qvel = qvel.at[0:6].set(
-    #     jax.random.uniform(key, (6,), minval=-0.1, maxval=0.1)
-    # )
+    # d(xyzrpy)=U(-0.1, 0.1)
+    rng, key = jax.random.split(rng)
+    qvel = qvel.at[0:6].set(
+        jax.random.uniform(key, (6,), minval=-0.1, maxval=0.1)
+    )
 
     # just copy in initial states from the xml file
-    data = mjx_env.init(self.mjx_model, qpos=qpos_i, qvel=qvel_i, ctrl=ctrl_i)
+    data = mjx_env.init(self.mjx_model, qpos=qpos, qvel=qvel, ctrl=ctrl_i)
 
     rng, key1, key2, key3 = jax.random.split(rng, 4)
     time_until_next_pert = jax.random.uniform(
