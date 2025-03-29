@@ -40,11 +40,11 @@ def default_config() -> config_dict.ConfigDict:
       ######################## reward confg ##########################
       reward_config=config_dict.create(
           scales=config_dict.create(
-              tracking_lin_vel=1.0,
-              tracking_ang_vel=1.2,
+              tracking_lin_vel=3.0,
+              tracking_ang_vel=3.5,
               lin_vel_z = -1.0,
               action_rate = -0.005,
-              pose = -0.1,
+              pose = -20.0,
               z_height = -50.0,
           ),
           tracking_sigma=0.25,
