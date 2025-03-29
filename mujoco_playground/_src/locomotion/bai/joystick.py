@@ -43,12 +43,12 @@ def default_config() -> config_dict.ConfigDict:
           scales=config_dict.create(
               tracking_lin_vel=1.0,
               tracking_ang_vel=1.5,
-              lin_vel_z = -5.0,
+              lin_vel_z = -1.0,
               action_rate = -0.005,
-              pose = -1.0,
+              pose = -20.0,
               z_height = -20.0,
               # add feet phase
-              feet_phase=10.0,
+              feet_phase=1.0,
           ),
           tracking_sigma=0.25,
           base_height = 0.31,
