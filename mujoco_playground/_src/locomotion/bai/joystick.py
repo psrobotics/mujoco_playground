@@ -46,7 +46,9 @@ def default_config() -> config_dict.ConfigDict:
               lin_vel_z = -1.0,
               action_rate = -0.005,
               pose = -1.0,
-              z_height = -5.0,
+              z_height = -2.0,
+              # add feet phase
+              feet_phase=1.0,
           ),
           tracking_sigma=0.25,
           base_height = 0.31,
@@ -148,7 +150,7 @@ class Joystick(bai_base.BaiEnv):
     gait_freq = jax.random.uniform(key, (1,), minval=1.25, maxval=1.75)
     phase_dt = 2 * jp.pi * self.dt * gait_freq
     phase = jp.array([0, jp.pi])
-    
+
     rng, key1, key2, key3 = jax.random.split(rng, 4)
     time_until_next_pert = jax.random.uniform(
         key1,
