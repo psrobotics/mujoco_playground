@@ -13,6 +13,7 @@ from mujoco_playground._src import collision
 from mujoco_playground._src import mjx_env
 from mujoco_playground._src.locomotion.bai import base as bai_base
 from mujoco_playground._src.locomotion.bai import bai_constants as consts
+from mujoco_playground._src import gait
 
 
 def default_config() -> config_dict.ConfigDict:
@@ -40,12 +41,12 @@ def default_config() -> config_dict.ConfigDict:
       ######################## reward confg ##########################
       reward_config=config_dict.create(
           scales=config_dict.create(
-              tracking_lin_vel=3.0,
-              tracking_ang_vel=3.5,
+              tracking_lin_vel=1.0,
+              tracking_ang_vel=1.5,
               lin_vel_z = -1.0,
               action_rate = -0.005,
-              pose = -20.0,
-              z_height = -50.0,
+              pose = -1.0,
+              z_height = -5.0,
           ),
           tracking_sigma=0.25,
           base_height = 0.31,
@@ -102,7 +103,6 @@ class Joystick(bai_base.BaiEnv):
         [self._mj_model.geom(name).id for name in consts.FEET_GEOMS]
     )
 
-
     foot_linvel_sensor_adr = []
     for site in consts.FEET_SITES:
       # modify, foot position
@@ -143,6 +143,12 @@ class Joystick(bai_base.BaiEnv):
     # just copy in initial states from the xml file
     data = mjx_env.init(self.mjx_model, qpos=qpos, qvel=qvel, ctrl=ctrl_i)
 
+    # Phase, freq=U(1.25, 1.75)
+    rng, key = jax.random.split(rng)
+    gait_freq = jax.random.uniform(key, (1,), minval=1.25, maxval=1.75)
+    phase_dt = 2 * jp.pi * self.dt * gait_freq
+    phase = jp.array([0, jp.pi])
+    
     rng, key1, key2, key3 = jax.random.split(rng, 4)
     time_until_next_pert = jax.random.uniform(
         key1,
@@ -191,6 +197,9 @@ class Joystick(bai_base.BaiEnv):
         "pert_steps": 0,
         "pert_dir": jp.zeros(3),
         "pert_mag": pert_mag,
+        # Phase related.
+        "phase_dt": phase_dt,
+        "phase": phase,
     }
 
     metrics = {}
@@ -255,6 +264,14 @@ class Joystick(bai_base.BaiEnv):
     for k, v in rewards.items():
       state.metrics[f"reward/{k}"] = v
     state.metrics["swing_peak"] = jp.mean(state.info["swing_peak"])
+    ### phase test
+    phase_tp1 = state.info["phase"] + state.info["phase_dt"]
+    state.info["phase"] = jp.fmod(phase_tp1 + jp.pi, 2 * jp.pi) - jp.pi
+    state.info["phase"] = jp.where(
+        jp.linalg.norm(state.info["command"]) > 0.01,
+        state.info["phase"],
+        jp.ones(2) * jp.pi,
+    )
 
     done = done.astype(reward.dtype)
     state = state.replace(data=data, obs=obs, reward=reward, done=done)
@@ -375,6 +392,12 @@ class Joystick(bai_base.BaiEnv):
         "action_rate": self._cost_action_rate(action, info["last_act"], info["last_last_act"]),
         "pose": self._reward_pose(data.qpos[7:]),
         "z_height": self._reward_z_height(data.qpos[0:3]),
+        "feet_phase": self._reward_feet_phase(
+            data,
+            info["phase"],
+            self._config.reward_config.max_foot_height,
+            info["command"],
+        ),
     }
     # return {
     #     "tracking_lin_vel": self._reward_tracking_lin_vel(info["command"], self.get_local_linvel(data)),
@@ -431,6 +454,26 @@ class Joystick(bai_base.BaiEnv):
 
   def _reward_z_height(self, qpos: jax.Array) -> jax.Array:
     return jp.square(qpos[2] - self._config.reward_config.base_height)
+
+  def _reward_feet_phase(
+      self,
+      data: mjx.Data,
+      phase: jax.Array,
+      foot_height: jax.Array,
+      commands: jax.Array,
+  ) -> jax.Array:
+    # Reward for tracking the desired foot height.
+    del commands  # Unused.
+    foot_pos = data.site_xpos[self._feet_site_id]
+    foot_z = foot_pos[..., -1]
+    rz = gait.get_rz(phase, swing_height=foot_height)
+    error = jp.sum(jp.square(foot_z - rz))
+    reward = jp.exp(-error / 0.01)
+    # TODO(kevin): Ensure no movement at 0 command.
+    # cmd_norm = jp.linalg.norm(commands)
+    # reward *= cmd_norm > 0.1  # No reward for zero commands.
+    return reward
+  
 
 #   # Tracking rewards.
 #   def _reward_z_height(
