@@ -52,6 +52,7 @@ def default_config() -> config_dict.ConfigDict:
           ),
           tracking_sigma=0.25,
           base_height = 0.31,
+          max_foot_height = 0.06,
       ),
       pert_config=config_dict.create(
           enable=False,
