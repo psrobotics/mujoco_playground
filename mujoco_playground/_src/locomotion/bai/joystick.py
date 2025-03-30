@@ -21,6 +21,7 @@ def default_config() -> config_dict.ConfigDict:
       ctrl_dt=0.02,
       sim_dt=0.004,
       episode_length=1000,
+      # this will overwrite kp kd define in xml file, be aware
       Kp=2.5,
       Kd=0.1,
       action_repeat=1,
@@ -468,7 +469,7 @@ class Joystick(bai_base.BaiEnv):
 
   def _reward_pose(self, qpos: jax.Array) -> jax.Array:
     # Stay close to the default pose.
-    weight = jp.array([1.0, 1.0, 0.1] * 4)
+    weight = jp.array([1.0, 1.0, 1.0] * 2)
     return jp.exp(-jp.sum(jp.square(qpos - self._default_pose) * weight))
 
 
