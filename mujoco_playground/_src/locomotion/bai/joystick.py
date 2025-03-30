@@ -45,8 +45,8 @@ def default_config() -> config_dict.ConfigDict:
               tracking_ang_vel=1.5,
               lin_vel_z = -1.0,
               action_rate = -0.005,
-              pose = -1.0,
-              z_height = -0.5,
+              pose = -0.5,
+              z_height = -2.0,
               # add feet phase
               feet_phase=1.0,
           ),
