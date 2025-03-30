@@ -54,8 +54,7 @@
                   diaginertia="1.0071e-05 9.5693e-06 3.69117e-06"/>
         <joint name="J_HIP_L" pos="0 0 0"
                axis="0 -3.32035e-07 1"
-               range="-0.95 2"
-               actuatorfrcrange="-10 10"/>
+               range="-0.95 2" damping="0.5"/>
         <geom name="hip2hip_l_visual" pos="-0.035 0.0135 -0.005"
               quat="0.5 0.5 0.5 -0.5"
               type="mesh"
@@ -70,8 +69,7 @@
                     mass="0.115327"
                     diaginertia="0.00029232 0.000291179 3.79894e-05"/>
           <joint name="J_AB_L" pos="0 0 0" axis="-1 0 0"
-                 range="-1.75 0.5"
-                 actuatorfrcrange="-10 10"/>
+                 range="-1.75 0.5" damping="0.5"/>
           <geom name="leg_u_l_visual" pos="0.0255 3.77476e-10 -1.57538e-09"
                 quat="0.0308436 0.706434 -0.0308436 -0.706434"
                 type="mesh"
@@ -87,8 +85,7 @@
                       diaginertia="0.000114788 0.000113123 9.32456e-06"/>
             <joint name="J_KNEE_L" pos="0 0 0"
                    axis="0.087156 -0.996195 0"
-                   range="-2 0.9"
-                   actuatorfrcrange="-10 10"/>
+                   range="-2 0.9" damping="0.5"/>
             <geom name="leg_l_l_visual" pos="-0.0870524 -0.0180516 -0.00136393"
                   quat="0 -0.0436194 0.999048 0"
                   type="mesh"
@@ -113,8 +110,7 @@
                   diaginertia="1.0071e-05 9.5693e-06 3.69117e-06"/>
         <joint name="J_HIP_R" pos="0 0 0"
                axis="0 3.32035e-07 1"
-               range="-2 0.95"
-               actuatorfrcrange="-10 10"/>
+               range="-2 0.95" damping="0.5"/>
         <geom name="hip2hip_r_visual" pos="-0.035 0.0135 -0.005"
               quat="0.5 0.5 0.5 -0.5"
               type="mesh"
@@ -129,8 +125,7 @@
                     mass="0.115326"
                     diaginertia="0.000292419 0.000291104 3.79869e-05"/>
           <joint name="J_AB_R" pos="0 0 0" axis="-1 0 0"
-                 range="-0.5 1.75"
-                 actuatorfrcrange="-10 10"/>
+                 range="-0.5 1.75" damping="0.5"/>
           <geom name="leg_u_r_visual" pos="0.0255 3.77477e-10 1.57538e-09"
                 quat="0.0308436 -0.706434 0.0308436 -0.706434"
                 type="mesh"
@@ -146,8 +141,7 @@
                       diaginertia="0.000114788 0.000113123 9.32456e-06"/>
             <joint name="J_KNEE_R" pos="0 0 0"
                    axis="0.087156 0.996195 0"
-                   range="-0.9 2"
-                   actuatorfrcrange="-10 10"/>
+                   range="-0.9 2" damping="0.5"/>
             <geom name="leg_l_r_visual" pos="-0.0675048 0.0210103 -0.00136393"
                   quat="0.0436194 0 0 0.999048"
                   type="mesh"
@@ -195,13 +189,14 @@
               reftype="site" refname="imu_torso"/>
   </sensor>
 
+
   <!-- Actuators -->
   <actuator>
-    <motor name="J_HIP_L"  joint="J_HIP_L"  gear="1"/>
-    <motor name="J_HIP_R"  joint="J_HIP_R"  gear="1"/>
-    <motor name="J_AB_L"   joint="J_AB_L"   gear="1"/>
-    <motor name="J_AB_R"   joint="J_AB_R"   gear="1"/>
-    <motor name="J_KNEE_L" joint="J_KNEE_L" gear="1"/>
-    <motor name="J_KNEE_R" joint="J_KNEE_R" gear="1"/>
+    <position name="J_HIP_L"  joint="J_HIP_L"  kp="20" kv="0.5" forcerange="-3 3"/>
+    <position name="J_HIP_R"  joint="J_HIP_R"  kp="20" kv="0.5" forcerange="-3 3"/>
+    <position name="J_AB_L"   joint="J_AB_L"   kp="20" kv="0.5" forcerange="-3 3"/>
+    <position name="J_AB_R"   joint="J_AB_R"   kp="20" kv="0.5" forcerange="-3 3"/>
+    <position name="J_KNEE_L" joint="J_KNEE_L" kp="20" kv="0.5" forcerange="-3 3"/>
+    <position name="J_KNEE_R" joint="J_KNEE_R" kp="20" kv="0.5" forcerange="-3 3"/>
   </actuator>
 </mujoco>
