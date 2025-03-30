@@ -407,7 +407,6 @@ class Joystick(bai_base.BaiEnv):
             self._config.reward_config.max_foot_height,
             info["command"],
         ),
-        "energy": self._cost_energy(data.qvel[6:], data.actuator_force),
         "feet_slip": self._cost_feet_slip(data, contact, info),
         "feet_clearance": self._cost_feet_clearance(data),
         "feet_height": self._cost_feet_height(info["swing_peak"], first_contact, info),
