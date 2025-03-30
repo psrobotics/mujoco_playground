@@ -50,15 +50,17 @@ def default_config() -> config_dict.ConfigDict:
               # add feet phase
               feet_phase=1.0,
               #feet
-              feet_clearance=0.0,
-              feet_air_time=2.0,
+              feet_clearance=-1.5,
+              feet_air_time=0.2,
               feet_slip=-0.25,
               termination=0.0,
               dof_pos_limits=-1.0,
+              energy = -0.005,
+              torques = -0.001,
           ),
           tracking_sigma=0.25,
           base_height = 0.31,
-          max_foot_height = 0.06,
+          max_foot_height = 0.1,
       ),
       pert_config=config_dict.create(
           enable=False,
@@ -412,6 +414,8 @@ class Joystick(bai_base.BaiEnv):
         "feet_air_time": self._reward_feet_air_time(info["feet_air_time"], first_contact, info["command"]),
         "dof_pos_limits": self._cost_joint_pos_limits(data.qpos[7:]),
         "termination": self._cost_termination(done),
+        "torques": self._cost_torques(data.actuator_force),
+        "energy": self._cost_energy(data.qvel[6:], data.actuator_force),
     }
     # return {
     #     "tracking_lin_vel": self._reward_tracking_lin_vel(info["command"], self.get_local_linvel(data)),
@@ -530,15 +534,15 @@ class Joystick(bai_base.BaiEnv):
 
 #   # Energy related rewards.
 
-#   def _cost_torques(self, torques: jax.Array) -> jax.Array:
-#     # Penalize torques.
-#     return jp.sqrt(jp.sum(jp.square(torques))) + jp.sum(jp.abs(torques))
+  def _cost_torques(self, torques: jax.Array) -> jax.Array:
+    # Penalize torques.
+    return jp.sqrt(jp.sum(jp.square(torques))) + jp.sum(jp.abs(torques))
 
-#   def _cost_energy(
-#       self, qvel: jax.Array, qfrc_actuator: jax.Array
-#   ) -> jax.Array:
-#     # Penalize energy consumption.
-#     return jp.sum(jp.abs(qvel) * jp.abs(qfrc_actuator))
+  def _cost_energy(
+      self, qvel: jax.Array, qfrc_actuator: jax.Array
+  ) -> jax.Array:
+    # Penalize energy consumption.
+    return jp.sum(jp.abs(qvel) * jp.abs(qfrc_actuator))
 
 #   def _cost_action_rate(
 #       self, act: jax.Array, last_act: jax.Array, last_last_act: jax.Array
