@@ -409,7 +409,6 @@ class Joystick(bai_base.BaiEnv):
         ),
         "feet_slip": self._cost_feet_slip(data, contact, info),
         "feet_clearance": self._cost_feet_clearance(data),
-        "feet_height": self._cost_feet_height(info["swing_peak"], first_contact, info),
         "feet_air_time": self._reward_feet_air_time(info["feet_air_time"], first_contact, info["command"]),
         "dof_pos_limits": self._cost_joint_pos_limits(data.qpos[7:]),
         "termination": self._cost_termination(done),
