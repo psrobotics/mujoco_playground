@@ -21,14 +21,14 @@ def default_config() -> config_dict.ConfigDict:
       ctrl_dt=0.02,
       sim_dt=0.004,
       episode_length=1000,
-      Kp=20.0,
-      Kd=1.0,
+      Kp=2.5,
+      Kd=0.1,
       action_repeat=1,
       action_scale=0.5,
       history_len=1,
       soft_joint_pos_limit_factor=0.95,
       noise_config=config_dict.create(
-          level=0.0,  # Set to 0.0 to disable noise.
+          level=0.1,  # Set to 0.0 to disable noise.
           # noise scale
           scales=config_dict.create(
               joint_pos=0.03,
@@ -44,8 +44,8 @@ def default_config() -> config_dict.ConfigDict:
               tracking_lin_vel=1.0,
               tracking_ang_vel=0.6,
               lin_vel_z = -1.0,
-              action_rate = -0.005,
-              pose = -0.5,
+              action_rate = -0.02,
+              pose = 0.5,
               z_height = -0.8,
               # add feet phase
               feet_phase=1.0,
@@ -55,8 +55,8 @@ def default_config() -> config_dict.ConfigDict:
               feet_slip=-0.25,
               termination=0.0,
               dof_pos_limits=-1.0,
-              energy = -0.005,
-              torques = -0.001,
+              energy = -0.001,
+              torques = -0.0002,
           ),
           tracking_sigma=0.25,
           base_height = 0.31,
@@ -468,7 +468,9 @@ class Joystick(bai_base.BaiEnv):
 
   def _reward_pose(self, qpos: jax.Array) -> jax.Array:
     # Stay close to the default pose.
-    return jp.sum(jp.abs(qpos - self._default_pose))
+    weight = jp.array([1.0, 1.0, 0.1] * 4)
+    return jp.exp(-jp.sum(jp.square(qpos - self._default_pose) * weight))
+
 
   def _reward_z_height(self, qpos: jax.Array) -> jax.Array:
     return jp.square(qpos[2] - self._config.reward_config.base_height)
