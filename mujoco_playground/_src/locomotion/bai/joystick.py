@@ -42,13 +42,19 @@ def default_config() -> config_dict.ConfigDict:
       reward_config=config_dict.create(
           scales=config_dict.create(
               tracking_lin_vel=1.0,
-              tracking_ang_vel=1.5,
+              tracking_ang_vel=0.6,
               lin_vel_z = -1.0,
               action_rate = -0.005,
               pose = -0.5,
-              z_height = -2.0,
+              z_height = -0.8,
               # add feet phase
               feet_phase=1.0,
+              #feet
+              feet_clearance=0.0,
+              feet_air_time=2.0,
+              feet_slip=-0.25,
+              termination=0.0,
+              dof_pos_limits=-1.0,
           ),
           tracking_sigma=0.25,
           base_height = 0.31,
@@ -401,6 +407,13 @@ class Joystick(bai_base.BaiEnv):
             self._config.reward_config.max_foot_height,
             info["command"],
         ),
+        "energy": self._cost_energy(data.qvel[6:], data.actuator_force),
+        "feet_slip": self._cost_feet_slip(data, contact, info),
+        "feet_clearance": self._cost_feet_clearance(data),
+        "feet_height": self._cost_feet_height(info["swing_peak"], first_contact, info),
+        "feet_air_time": self._reward_feet_air_time(info["feet_air_time"], first_contact, info["command"]),
+        "dof_pos_limits": self._cost_joint_pos_limits(data.qpos[7:]),
+        "termination": self._cost_termination(done),
     }
     # return {
     #     "tracking_lin_vel": self._reward_tracking_lin_vel(info["command"], self.get_local_linvel(data)),
@@ -550,35 +563,35 @@ class Joystick(bai_base.BaiEnv):
 #     cmd_norm = jp.linalg.norm(commands)
 #     return jp.sum(jp.abs(qpos - self._default_pose)) * (cmd_norm < 0.01)
 
-#   def _cost_termination(self, done: jax.Array) -> jax.Array:
-#     # Penalize early termination.
-#     return done
+  def _cost_termination(self, done: jax.Array) -> jax.Array:
+    # Penalize early termination.
+    return done
 
-#   def _cost_joint_pos_limits(self, qpos: jax.Array) -> jax.Array:
-#     # Penalize joints if they cross soft limits.
-#     out_of_limits = -jp.clip(qpos - self._soft_lowers, None, 0.0)
-#     out_of_limits += jp.clip(qpos - self._soft_uppers, 0.0, None)
-#     return jp.sum(out_of_limits)
+  def _cost_joint_pos_limits(self, qpos: jax.Array) -> jax.Array:
+    # Penalize joints if they cross soft limits.
+    out_of_limits = -jp.clip(qpos - self._soft_lowers, None, 0.0)
+    out_of_limits += jp.clip(qpos - self._soft_uppers, 0.0, None)
+    return jp.sum(out_of_limits)
 
 #   # Feet related rewards.
 
-#   def _cost_feet_slip(
-#       self, data: mjx.Data, contact: jax.Array, info: dict[str, Any]
-#   ) -> jax.Array:
-#     cmd_norm = jp.linalg.norm(info["command"])
-#     feet_vel = data.sensordata[self._foot_linvel_sensor_adr]
-#     vel_xy = feet_vel[..., :2]
-#     vel_xy_norm_sq = jp.sum(jp.square(vel_xy), axis=-1)
-#     return jp.sum(vel_xy_norm_sq * contact) * (cmd_norm > 0.01)
+  def _cost_feet_slip(
+      self, data: mjx.Data, contact: jax.Array, info: dict[str, Any]
+  ) -> jax.Array:
+    cmd_norm = jp.linalg.norm(info["command"])
+    feet_vel = data.sensordata[self._foot_linvel_sensor_adr]
+    vel_xy = feet_vel[..., :2]
+    vel_xy_norm_sq = jp.sum(jp.square(vel_xy), axis=-1)
+    return jp.sum(vel_xy_norm_sq * contact) * (cmd_norm > 0.01)
 
-#   def _cost_feet_clearance(self, data: mjx.Data) -> jax.Array:
-#     feet_vel = data.sensordata[self._foot_linvel_sensor_adr]
-#     vel_xy = feet_vel[..., :2]
-#     vel_norm = jp.sqrt(jp.linalg.norm(vel_xy, axis=-1))
-#     foot_pos = data.site_xpos[self._feet_site_id]
-#     foot_z = foot_pos[..., -1]
-#     delta = jp.abs(foot_z - self._config.reward_config.max_foot_height)
-#     return jp.sum(delta * vel_norm)
+  def _cost_feet_clearance(self, data: mjx.Data) -> jax.Array:
+    feet_vel = data.sensordata[self._foot_linvel_sensor_adr]
+    vel_xy = feet_vel[..., :2]
+    vel_norm = jp.sqrt(jp.linalg.norm(vel_xy, axis=-1))
+    foot_pos = data.site_xpos[self._feet_site_id]
+    foot_z = foot_pos[..., -1]
+    delta = jp.abs(foot_z - self._config.reward_config.max_foot_height)
+    return jp.sum(delta * vel_norm)
 
 #   def _cost_feet_height(
 #       self,
@@ -590,14 +603,14 @@ class Joystick(bai_base.BaiEnv):
 #     error = swing_peak / self._config.reward_config.max_foot_height - 1.0
 #     return jp.sum(jp.square(error) * first_contact) * (cmd_norm > 0.01)
 
-#   def _reward_feet_air_time(
-#       self, air_time: jax.Array, first_contact: jax.Array, commands: jax.Array
-#   ) -> jax.Array:
-#     # Reward air time.
-#     cmd_norm = jp.linalg.norm(commands)
-#     rew_air_time = jp.sum((air_time - 0.1) * first_contact)
-#     rew_air_time *= cmd_norm > 0.01  # No reward for zero commands.
-#     return rew_air_time
+  def _reward_feet_air_time(
+      self, air_time: jax.Array, first_contact: jax.Array, commands: jax.Array
+  ) -> jax.Array:
+    # Reward air time.
+    cmd_norm = jp.linalg.norm(commands)
+    rew_air_time = jp.sum((air_time - 0.1) * first_contact)
+    rew_air_time *= cmd_norm > 0.01  # No reward for zero commands.
+    return rew_air_time
 
   # Perturbation and command sampling.
   def _maybe_apply_perturbation(self, state: mjx_env.State) -> mjx_env.State:

@@ -192,11 +192,11 @@
 
   <!-- Actuators -->
   <actuator>
-    <position name="J_HIP_L"  joint="J_HIP_L"  kp="20" kv="0.5" forcerange="-3 3"/>
-    <position name="J_HIP_R"  joint="J_HIP_R"  kp="20" kv="0.5" forcerange="-3 3"/>
-    <position name="J_AB_L"   joint="J_AB_L"   kp="20" kv="0.5" forcerange="-3 3"/>
-    <position name="J_AB_R"   joint="J_AB_R"   kp="20" kv="0.5" forcerange="-3 3"/>
-    <position name="J_KNEE_L" joint="J_KNEE_L" kp="20" kv="0.5" forcerange="-3 3"/>
-    <position name="J_KNEE_R" joint="J_KNEE_R" kp="20" kv="0.5" forcerange="-3 3"/>
+    <position name="J_HIP_L"  joint="J_HIP_L"  kp="5" kv="0.1" forcerange="-3 3"/>
+    <position name="J_HIP_R"  joint="J_HIP_R"  kp="5" kv="0.1" forcerange="-3 3"/>
+    <position name="J_AB_L"   joint="J_AB_L"   kp="5" kv="0.1" forcerange="-3 3"/>
+    <position name="J_AB_R"   joint="J_AB_R"   kp="5" kv="0.1" forcerange="-3 3"/>
+    <position name="J_KNEE_L" joint="J_KNEE_L" kp="5" kv="0.1" forcerange="-3 3"/>
+    <position name="J_KNEE_R" joint="J_KNEE_R" kp="5" kv="0.1" forcerange="-3 3"/>
   </actuator>
 </mujoco>
