@@ -22,7 +22,7 @@ def default_config() -> config_dict.ConfigDict:
       sim_dt=0.004,
       episode_length=1000,
       # this will overwrite kp kd define in xml file, be aware
-      Kp=12.5,
+      Kp=5.5,
       Kd=0.3,
       action_repeat=1,
       action_scale=1.0,
