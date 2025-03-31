@@ -486,7 +486,7 @@ class Joystick(bai_base.BaiEnv):
   def _cost_pose(self, qpos: jax.Array) -> jax.Array:
     weight = jp.array([0.4, 1.0, 0.3] * 2)
     # Penalize deviation from the default pose for certain joints.
-    return jp.sum(jp.square(qpos - self._default_pose) * self.weight)
+    return jp.sum(jp.square(qpos - self._default_pose) * weight)
 
   def _reward_z_height(self, qpos: jax.Array) -> jax.Array:
     return jp.square(qpos[2] - self._config.reward_config.base_height)
