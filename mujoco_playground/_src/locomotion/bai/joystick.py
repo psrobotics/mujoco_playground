@@ -25,7 +25,7 @@ def default_config() -> config_dict.ConfigDict:
       Kp=2.5,
       Kd=0.1,
       action_repeat=1,
-      action_scale=0.5,
+      action_scale=1.0,
       history_len=1,
       soft_joint_pos_limit_factor=0.95,
       noise_config=config_dict.create(
@@ -44,16 +44,16 @@ def default_config() -> config_dict.ConfigDict:
           scales=config_dict.create(
               tracking_lin_vel=1.0,
               tracking_ang_vel=0.6,
-              lin_vel_z = -1.0,
+              lin_vel_z = -0.4,
               action_rate = -0.02,
               pose = 0.5,
-              z_height = -0.8,
+              z_height = -0.3,
               # add feet phase
               feet_phase=1.0,
               #feet
-              feet_clearance=-1.5,
+              feet_clearance=-0.05,
               feet_air_time=0.2,
-              feet_slip=-0.25,
+              feet_slip=-0.03,
               termination=0.0,
               dof_pos_limits=-1.0,
               energy = -0.001,
@@ -61,7 +61,7 @@ def default_config() -> config_dict.ConfigDict:
           ),
           tracking_sigma=0.25,
           base_height = 0.31,
-          max_foot_height = 0.1,
+          max_foot_height = 0.055,
       ),
       pert_config=config_dict.create(
           enable=False,
