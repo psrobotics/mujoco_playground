@@ -357,6 +357,7 @@ class Joystick(bai_base.BaiEnv):
         noisy_joint_vel,  # 6
         info["last_act"],  # 6
         info["command"],  # 3
+        info["phase"]
     ])
 
     accelerometer = self.get_accelerometer(data)
@@ -365,19 +366,19 @@ class Joystick(bai_base.BaiEnv):
 
     privileged_state = jp.hstack([
         state, # 30
-        gyro,  # 3
-        accelerometer,  # 3
-        gravity,  # 3
-        linvel,  # 3
-        angvel,  # 3
-        joint_angles - self._default_pose,  # 6
-        joint_vel,  # 6
-        data.actuator_force,  # 6
-        info["last_contact"],  # 2
-        feet_vel,  # 2*3
-        info["feet_air_time"],  # 2
-        data.xfrc_applied[self._torso_body_id, :3],  # 3
-        info["steps_since_last_pert"] >= info["steps_until_next_pert"],  # 1
+        #gyro,  # 3
+        #accelerometer,  # 3
+        #gravity,  # 3
+        #linvel,  # 3
+        #angvel,  # 3
+        #joint_angles - self._default_pose,  # 6
+        #joint_vel,  # 6
+        #data.actuator_force,  # 6
+        #info["last_contact"],  # 2
+        #feet_vel,  # 2*3
+        #info["feet_air_time"],  # 2
+        #data.xfrc_applied[self._torso_body_id, :3],  # 3
+        #info["steps_since_last_pert"] >= info["steps_until_next_pert"],  # 1
     ])
 
     return {
