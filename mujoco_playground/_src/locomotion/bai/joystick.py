@@ -51,24 +51,13 @@ def default_config() -> config_dict.ConfigDict:
               # add feet phase
               feet_phase=6.0,
               #feet
-              feet_clearance=-0.05,
-              feet_air_time=0.0,
+              feet_clearance=-0.0,
+              feet_air_time=2.0,
               feet_slip=-0.0,
               termination=0.0,
               dof_pos_limits=-0.005,
-              energy = -0.001,
+              energy = -0.01,
               torques = -0.0002,
-              # # Rewards.
-              # feet_phase=5.0,
-              # tracking_lin_vel=3.5,
-              # tracking_ang_vel=0.75,
-              # feet_air_time=0.0,
-              # # Costs.
-              # ang_vel_xy=-0.0,
-              # lin_vel_z=-0.0,
-              # pose=-2.5,
-              # foot_slip=-0.0,
-              # action_rate=-0.01,
           ),
           tracking_sigma=0.25,
           base_height = 0.31,
@@ -503,8 +492,10 @@ class Joystick(bai_base.BaiEnv):
     foot_pos = data.site_xpos[self._feet_site_id]
     foot_z = foot_pos[..., -1]
     rz = gait.get_rz(phase, swing_height=foot_height)
+    #error = jp.sum(jp.square(foot_z - rz))
+    #reward = jp.exp(-error / 0.01)
     error = jp.sum(jp.square(foot_z - rz))
-    reward = jp.exp(-error / 0.01)
+    reward = 1.0 / (1.0 + 10.0 * error)
     # TODO(kevin): Ensure no movement at 0 command.
     # cmd_norm = jp.linalg.norm(commands)
     # reward *= cmd_norm > 0.1  # No reward for zero commands.
