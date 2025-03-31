@@ -22,10 +22,10 @@ def default_config() -> config_dict.ConfigDict:
       sim_dt=0.004,
       episode_length=1000,
       # this will overwrite kp kd define in xml file, be aware
-      Kp=2.5,
-      Kd=0.1,
+      Kp=12.5,
+      Kd=0.3,
       action_repeat=1,
-      action_scale=2.0,
+      action_scale=1.0,
       history_len=1,
       soft_joint_pos_limit_factor=0.95,
       noise_config=config_dict.create(
@@ -42,22 +42,33 @@ def default_config() -> config_dict.ConfigDict:
       ######################## reward confg ##########################
       reward_config=config_dict.create(
           scales=config_dict.create(
-              tracking_lin_vel=1.0,
-              tracking_ang_vel=0.6,
-              lin_vel_z = -0.2,
-              action_rate = -0.02,
-              pose = 0.5,
+              tracking_lin_vel=3.5,
+              tracking_ang_vel=0.75,
+              lin_vel_z = -0.0,
+              action_rate = -0.01,
+              pose = -2.5,
               z_height = -0.3,
               # add feet phase
-              feet_phase=1.0,
+              feet_phase=6.0,
               #feet
               feet_clearance=-0.05,
-              feet_air_time=0.2,
-              feet_slip=-0.03,
+              feet_air_time=0.0,
+              feet_slip=-0.0,
               termination=0.0,
               dof_pos_limits=-0.005,
               energy = -0.001,
               torques = -0.0002,
+              # # Rewards.
+              # feet_phase=5.0,
+              # tracking_lin_vel=3.5,
+              # tracking_ang_vel=0.75,
+              # feet_air_time=0.0,
+              # # Costs.
+              # ang_vel_xy=-0.0,
+              # lin_vel_z=-0.0,
+              # pose=-2.5,
+              # foot_slip=-0.0,
+              # action_rate=-0.01,
           ),
           tracking_sigma=0.25,
           base_height = 0.31,
@@ -402,7 +413,7 @@ class Joystick(bai_base.BaiEnv):
         "tracking_ang_vel": self._reward_tracking_ang_vel(info["command"], self.get_gyro(data)),
         "lin_vel_z": self._cost_lin_vel_z(self.get_global_linvel(data)),
         "action_rate": self._cost_action_rate(action, info["last_act"], info["last_last_act"]),
-        "pose": self._reward_pose(data.qpos[7:]),
+        "pose": self._cost_pose(data.qpos[7:]),
         "z_height": self._reward_z_height(data.qpos[0:3]),
         "feet_phase": self._reward_feet_phase(
             data,
@@ -472,6 +483,10 @@ class Joystick(bai_base.BaiEnv):
     weight = jp.array([1.0, 1.0, 1.0] * 2)
     return jp.exp(-jp.sum(jp.square(qpos - self._default_pose) * weight))
 
+  def _cost_pose(self, qpos: jax.Array) -> jax.Array:
+    weight = jp.array([0.4, 1.0, 0.3] * 2)
+    # Penalize deviation from the default pose for certain joints.
+    return jp.sum(jp.square(qpos - self._default_pose) * self.weight)
 
   def _reward_z_height(self, qpos: jax.Array) -> jax.Array:
     return jp.square(qpos[2] - self._config.reward_config.base_height)
